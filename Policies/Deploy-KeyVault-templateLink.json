@@ -1,0 +1,109 @@
+{
+  "properties": {
+    "displayName": "Deploy virtual network when resource groups are created (templateLink)",
+    "description": "This policy creates a virtual network resource in each resource group created.",
+    "metadata": {
+      "category": "Network"
+    },
+    "policyType": "Custom",
+    "mode": "All",
+    "parameters": {},
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Resources/subscriptions/resourceGroups"
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Network/virtualNetworks",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+          ],
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "name",
+                "equals": "templateLink"
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "location": {
+                    "type": "string",
+                    "defaultValue": "westeurope"
+                  },
+                  "vnetName": {
+                    "type": "string",
+                    "defaultValue": "templateLink"
+                  },
+                  "vnetAddressPrefixes": {
+                    "type": "array",
+                    "defaultValue": [
+                      "10.0.0.0/16"
+                    ]
+                  },
+                  "subnets": {
+                    "type": "array",
+                    "defaultValue": [
+                      {
+                        "name": "GatewaySubnet",
+                        "addressPrefix": "10.0.255.0/24"
+                      },
+                      {
+                        "name": "sxx-az-subnet-weu-x-001",
+                        "addressPrefix": "10.0.0.0/24",
+                        "networkSecurityGroupName": "",
+                        "routeTableName": "",
+                        "serviceEndpoints": [],
+                        "delegations": []
+                      }
+                    ]
+                  }
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2020-10-01",
+                    "name": "linkedTemplate",
+                    "properties": {
+                      "mode": "Incremental",
+                      "templateLink": {
+                        "uri": "https://raw.githubusercontent.com/segraef/Components/dine/Modules/ARM/VirtualNetwork/deploy.json",
+                        "contentVersion": "1.0.0.0"
+                      },
+                      "parameters": {
+                        "location": {
+                          "value": "[parameters('location')]"
+                        },
+                        "vnetName": {
+                          "value": "[parameters('vnetName')]"
+                        },
+                        "vnetAddressPrefixes": {
+                          "value": "[parameters('vnetAddressPrefixes')]"
+                        },
+                        "subnets": {
+                          "value": "[parameters('subnets')]"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "parameters": {}
+            }
+          }
+        }
+      }
+    }
+  },
+  "id": "/subscriptions/47041275-ef6a-42af-a770-ee0fb2227eec/providers/Microsoft.Authorization/policyDefinitions/966add35-7bd1-40c7-be34-c37d3fd1343c",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "966add35-7bd1-40c7-be34-c37d3fd1343c"
+}

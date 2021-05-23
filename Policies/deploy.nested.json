@@ -1,0 +1,65 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "westeurope"
+        },
+        "vnetName": {
+            "type": "string",
+            "defaultValue": "templateLinknested"
+        },
+        "vnetAddressPrefixes": {
+            "type": "array",
+            "defaultValue": [
+                "10.0.0.0/16"
+            ]
+        },
+        "subnets": {
+            "type": "array",
+            "defaultValue": [
+                {
+                    "name": "GatewaySubnet",
+                    "addressPrefix": "10.0.255.0/24"
+                },
+                {
+                    "name": "sxx-az-subnet-weu-x-001",
+                    "addressPrefix": "10.0.0.0/24",
+                    "networkSecurityGroupName": "",
+                    "routeTableName": "",
+                    "serviceEndpoints": [],
+                    "delegations": []
+                }
+            ]
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "linkedTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/segraef/Components/dine/Modules/ARM/VirtualNetwork/deploy.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "vnetAddressPrefixes": {
+                        "value": "[parameters('vnetAddressPrefixes')]"
+                    },
+                    "subnets": {
+                        "value": "[parameters('subnets')]"
+                    }
+                }
+            }
+        }
+    ]
+}
